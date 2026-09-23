@@ -16,11 +16,11 @@ ENV POETRY_NO_INTERACTION=1 \
     POETRY_CACHE_DIR=/tmp/poetry_cache
 ENV PATH="/root/.local/bin:$PATH"
 
-# Install Python, curl, and required C/Rust build tools
+# Install Python, curl, and required C/Rust build tools including cmake
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     python3 python3-pip python3-venv curl ca-certificates \
-    build-essential pkg-config libssl-dev && \
+    build-essential pkg-config libssl-dev cmake && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Poetry using the official installation script
