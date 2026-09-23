@@ -33,3 +33,4 @@ embedded.db-shm
 embedded.db-wal
 
 tests/
+.rollout/
