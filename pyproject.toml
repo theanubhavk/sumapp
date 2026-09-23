@@ -3,7 +3,7 @@ name = "sumapp"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "theanubhavk",email = "hackingmaster1597@gmail.com"}
+    {name = "theanubhavk",email = "thekelvin@gmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.12"
