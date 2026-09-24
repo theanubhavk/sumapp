@@ -1,37 +1,57 @@
-FROM ubuntu:latest
+FROM python:3.12-slim-bookworm AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    POETRY_VERSION=2.5.1 \
+    POETRY_HOME=/opt/poetry \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_CREATE=true \
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    VIRTUAL_ENV=/app/.venv \
+    PATH="/opt/poetry/bin:/app/.venv/bin:$PATH"
 
-# Defining the default port. DO NOT define database URLs or Auth tokens here.
-ENV PORT=8080
-ENV FLET_FORCE_WEB_SERVER=true
-
-# Poetry configuration
-ENV POETRY_NO_INTERACTION=1 \
-    POETRY_VIRTUALENVS_IN_PROJECT=1 \
-    POETRY_VIRTUALENVS_CREATE=1 \
-    POETRY_CACHE_DIR=/tmp/poetry_cache
-ENV PATH="/root/.local/bin:$PATH"
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    python3 python3-pip python3-venv curl ca-certificates \
-    build-essential pkg-config libssl-dev cmake && \
-    rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock* ./
+COPY pyproject.toml poetry.lock README.md ./
 
-RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
+RUN poetry --version
 
-COPY . .
+RUN poetry install --without dev --no-root
+
+COPY src ./src
 
 RUN poetry install --without dev
 
-EXPOSE $PORT
+FROM python:3.12-slim-bookworm AS runtime
 
-CMD ["poetry", "run", "python3", "-m", "src.sumapp"]
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    VIRTUAL_ENV=/app/.venv \
+    PATH="/app/.venv/bin:$PATH"
+
+WORKDIR /app
+
+RUN groupadd --system app \
+    && useradd \
+        --system \
+        --gid app \
+        --create-home \
+        --home-dir /home/app \
+        app
+
+COPY --from=builder /app/.venv /app/.venv
+COPY --from=builder /app/src /app/src
+
+RUN chown -R app:app /app
+
+USER app
+
+EXPOSE 8000
+
+CMD ["python", "-m", "sumapp"]

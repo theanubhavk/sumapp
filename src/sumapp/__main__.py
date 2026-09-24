@@ -1,5 +1,7 @@
 import flet as ft
-import sys, os
+import flet.fastapi as flet_fastapi
+from flet.fastapi import app_manager, FletApp
+import sys, os, asyncio, uvicorn
 
 from src.sumapp.db.database import db
 from src.sumapp.db.models import Base
@@ -7,6 +9,8 @@ from src.sumapp.db.models import Base
 # import bill
 from src.sumapp import bill
 from src.sumapp import report
+
+app = flet_fastapi.FastAPI()
 
 def main(page: ft.Page):
     page.title = "Management Dashboard"
@@ -180,6 +184,17 @@ def main(page: ft.Page):
     # Boot up the app directly to the Home page
     navigate("/")
 
+app.mount("/", flet_fastapi.app(main))
+
+@app.websocket("/ws")
+async def flet_app(websocket):
+    await FletApp(
+        loop=asyncio.get_running_loop(),
+        executor=app_manager.executor,
+        main=main,
+        before_main=None,
+    ).handle(websocket)
+
 if __name__ == "__main__":
     try:
         Base.metadata.create_all(db.engine)
@@ -194,7 +209,12 @@ if __name__ == "__main__":
         print("[Net] Offline mode: Skipping startup sync.")
 
     try:
-        ft.run(main, port=int(os.getenv("PORT", "8000")))
+        # ft.run(main, port=int(os.getenv("PORT", "8000")))
+        uvicorn.run(
+            app,
+            host="0.0.0.0",
+            port=int(os.getenv("PORT", "8000"))
+        )
     except KeyboardInterrupt:
         pass  
 
