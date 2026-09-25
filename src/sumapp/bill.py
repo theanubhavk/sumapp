@@ -60,7 +60,7 @@ def main(page: ft.Page):
 
     date_picker = ft.DatePicker(
         on_change=handle_date_change,
-        first_date=datetime.datetime(2020, 1, 1),
+        first_date=datetime.datetime(2015, 1, 1),
         last_date=datetime.datetime(2030, 12, 31),
     )
 
