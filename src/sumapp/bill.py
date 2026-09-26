@@ -19,7 +19,7 @@ def add_row(head_name:str, datetime: str, shgs: list):
             )
 
 def main(page: ft.Page):
-    page.title = "Bill Entry System"
+    page.title = "Aggregate addition System"
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     # page.theme_mode = ft.ThemeMode.SYSTEM 
 

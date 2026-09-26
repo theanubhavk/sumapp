@@ -55,10 +55,10 @@ def main(page: ft.Page):
     results_table = ft.DataTable(
         # visible=False,
         columns=[
-            ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD)),
+            # ft.DataColumn(ft.Text("ID", weight=ft.FontWeight.BOLD)),
             ft.DataColumn(ft.Text("SHG", weight=ft.FontWeight.BOLD)),
-            ft.DataColumn(ft.Text("Total Records", weight=ft.FontWeight.BOLD), numeric=True),
             ft.DataColumn(ft.Text("Total Amount", weight=ft.FontWeight.BOLD), numeric=True),
+            ft.DataColumn(ft.Text("Total Records", weight=ft.FontWeight.BOLD), numeric=True),
             ft.DataColumn(ft.Text("Action", weight=ft.FontWeight.BOLD)),
         ],
         rows=[]
@@ -130,7 +130,14 @@ def main(page: ft.Page):
                 ])
             )
 
-        drill_down_dialog.title = ft.Text(f"Records for {row_data['shg'].capitalize()} (Head: {row_data['head']})")
+        drill_down_dialog.title = ft.Row(
+            controls=[
+                ft.Text(row_data['head'], size=18, weight=ft.FontWeight.BOLD),
+                ft.Text(row_data['shg'].capitalize(), size=14, color="grey"),
+            ],
+            alignment=ft.MainAxisAlignment.SPACE_BETWEEN,
+            expand=True
+        )
         
         # Open the dialog
         page.show_dialog(drill_down_dialog)
@@ -167,10 +174,10 @@ def main(page: ft.Page):
             results_table.rows.append(
                 ft.DataRow(
                     cells=[
-                        ft.DataCell(ft.Text(str(i))),
+                        # ft.DataCell(ft.Text(str(i))),
                         ft.DataCell(ft.Text(shg_name)),
-                        ft.DataCell(ft.Text(str(data["total_rows"]))),
                         ft.DataCell(ft.Text(str(data["total_amount"]))),
+                        ft.DataCell(ft.Text(str(data["total_rows"]))),
                         ft.DataCell(eye_icon), # The 4th column is the action button
                     ]
                 )
